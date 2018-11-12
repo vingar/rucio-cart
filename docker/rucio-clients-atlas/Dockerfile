@@ -13,6 +13,8 @@ RUN pip install --upgrade setuptools
 RUN rm -rf /usr/lib/python2.7/site-packages/ipaddress*
 
 ADD files/ca.repo /etc/yum.repos.d/ca.repo
+ADD files/wlcg-centos7.repo /etc/yum.repos.d/wlcg-centos7.repo
+ADD files/RPM-GPG-KEY-wlcg /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg
 
 
 RUN yum install -y ca-policy-egi-core
