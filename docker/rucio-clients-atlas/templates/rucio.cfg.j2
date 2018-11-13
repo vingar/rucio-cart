@@ -1,0 +1,29 @@
+# Authors:
+# - Vincent Garonne, <vgaronne@gmail.com>, 2018
+
+[common]
+
+[client]
+rucio_host = {{ rucio_host }}
+auth_host = {{ auth_host }}
+ca_cert = /etc/grid-security/certificates/
+client_cert = $X509_USER_CERT
+client_key = $X509_USER_KEY
+client_x509_proxy = $X509_USER_PROXY
+request_retries = 3
+
+[permission]
+policy=atlas
+
+[policy]
+permission = {{ permission }}
+schema = {{ schema }}
+lfn2pfn_algorithm_default = {{ lfn2pfn_algorithm_default }}
+support = {{ support }}
+support_rucio = {{ support_rucio }}
+
+[upload]
+#transfer_timeout = 3600
+
+[download]
+#transfer_timeout = 3600

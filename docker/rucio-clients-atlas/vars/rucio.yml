@@ -1,0 +1,7 @@
+rucio_host: https://voatlasrucio-server-prod.cern.ch:443 
+auth_host: https://voatlasrucio-auth-prod.cern.ch:443
+permission: atlas  
+schema: atlas
+lfn2pfn_algorithm_default: hash
+support: hn-atlas-dist-analysis-help@cern.ch
+support_rucio: https://github.com/rucio/rucio/issues/
