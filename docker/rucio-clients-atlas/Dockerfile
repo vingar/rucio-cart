@@ -2,13 +2,11 @@ FROM centos:7
 
 RUN yum install -y epel-release
 RUN yum install -y python2-pip
-RUN yum install -y gcc libffi-devel python-devel openssl-devel
 RUN yum install -y voms-clients-java
 RUN yum install -y gfal2-all gfal2-util
 RUN yum install -y nordugrid-arc-client nordugrid-arc-plugins-gfal \
                    nordugrid-arc-plugins-globus nordugrid-arc-plugins-s3 \
                    nordugrid-arc-plugins-xrootd
-RUN yum install -y vim
 
 # Upgrade pip & setuptools
 RUN pip install --upgrade setuptools
