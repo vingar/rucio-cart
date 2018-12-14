@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+'''
+    Script to bulk register existing replicas
+'''
+
+import csv
+
+from rucio.client import Client
+
+if __name__ == '__main__':
+
+    with open("/opt/rucio/tools/replicas.csv") as f:
+        reader = csv.reader(f)
+        data = [r for r in reader]
+
+    rucio_client = Client()
+    rse = 'NDGF-PIGGY'
+    # replicas to register
+    replicas = []
+    for scope, name, url, bytes, adler32 in data:
+        replica  = {
+            'scope': scope,
+            'name': name,
+            'pfn': url,
+            'bytes': int(bytes),
+            'adler32': adler32}
+        replicas.append(replica)
+
+    rucio_client.add_replicas(rse=rse, files=replicas)

@@ -1,0 +1,121 @@
+version: "2"
+
+services:
+  rucio-server:
+    image: rucio/rucio-server:latest
+    ports:
+      - "443:443"
+    links:
+      - postgres:postgres
+      - activemq:activemq
+    depends_on:
+      - "postgres"
+      - "activemq"
+    command: ["httpd", "-D", "FOREGROUND"]
+    environment:
+      - X509_USER_PROXY=$X509_USER_PROXY
+    volumes:
+      - $X509_USER_PROXY:$X509_USER_PROXY
+      - $RUCIO_HOME:/opt/rucio # should contain rucio.cfg
+      - $X509_CERT_DIR:/etc/grid-security  # should contain the server host certificate and key (hostcert.pem and hostkey.pem)
+  rucio-daemons:
+    image: rucio/rucio-daemons:latest
+    links:
+      - postgres:postgres
+      - activemq:activemq
+    depends_on:
+      - "postgres"
+      - "activemq"
+    environment:
+      - X509_USER_PROXY=$X509_USER_PROXY
+    volumes:
+      - $X509_USER_PROXY:$X509_USER_PROXY
+      - $RUCIO_HOME:/opt/rucio # should contain rucio.cfg
+      - $X509_CERT_DIR:/etc/grid-security  # should contain the server host certificate and key (hostcert.pem and hostkey.pem)
+  rucio-ui:
+    image: rucio/rucio-ui:latest
+    ports:
+      - "9443:9443"
+    links:
+      - postgres:postgres
+    depends_on:
+      - "postgres"
+      - "activemq"
+    command: ["httpd", "-D", "FOREGROUND"]
+    environment:
+      - X509_USER_PROXY=$X509_USER_PROXY
+    volumes:
+      - $X509_USER_PROXY:$X509_USER_PROXY
+      - $RUCIO_HOME:/opt/rucio # should contain rucio.cfg
+      - $X509_CERT_DIR:/etc/grid-security  # should contain the server host certificate and key (hostcert.pem and hostkey.pem)
+  postgres:
+    image: postgres:10.3
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=secret
+  activemq:
+    image: webcenter/activemq:latest
+    ports:
+      - 8161:8161
+      - 61616:61616
+      - 61613:61613
+    environment:
+      - ACTIVEMQ_NAME=amq
+      - ACTIVEMQ_REMOVE_DEFAULT_ACCOUNT='True'
+      - ACTIVEMQ_ADMIN_LOGIN=admin
+      - ACTIVEMQ_ADMIN_PASSWORD=admin
+
+  # FTS documentation: http://fts3-docs.web.cern.ch/fts3-docs/docs/install/docker_containers.html
+  fts3:
+    image: gitlab-registry.cern.ch/fts/fts3:latest
+    links:
+      - mysql:mysql
+#    ports:
+#      - 3306:3306
+#      - 5000:5000
+#    network_mode: "host"
+    volumes:
+      - $FTS3_HOME:/etc/fts3  # should contain the fts3config and fts-msg-monitoring.conf
+      - $X509_CERT_DIR:/etc/grid-security  # should contain the CA certificates and VOMS lcs files.
+  fts-rest:
+    image: gitlab-registry.cern.ch/fts/fts-rest:latest
+    ports:
+      - 8446:8446
+    links:
+      - mysql:mysql
+    volumes:
+      - $FTS3_HOME:/etc/fts3  # should contain the fts3config and fts3rest.ini
+      - $X509_CERT_DIR:/etc/grid-security  # should contain the server host certificate and key ( hostcert.pem and hostkey.pem)
+                                           # together with CA certificates and VOMS lcs files.
+  fts-monitoring:
+    image: gitlab-registry.cern.ch/fts/fts-monitoring:latest
+    ports:
+      - "8449:8449"
+    links:
+      - mysql:mysql
+    volumes:
+      - $FTS3_HOME:/etc/fts3  # should contain the fts3config file
+      - $X509_CERT_DIR:/etc/grid-security  # should contain the server host certificate and key ( hostcert.pem and hostkey.pem)
+                                           # together with CA certificates.
+  mysql:
+    image: mysql/mysql-server:5.7
+    mem_limit: 100m
+    restart: always
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+     - "3306:3306"
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=True
+      - MYSQL_DATABASE=fts
+      - MYSQL_USER=fts
+      - MYSQL_PASSWORD=fts
+
+volumes:
+  pg_data:
+    external: true
+  mysql_data:
+    external: true

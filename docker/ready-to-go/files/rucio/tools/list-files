@@ -1,0 +1,38 @@
+#!/usr/bin/env python
+
+import os
+import zlib
+
+def adler32(file):
+    """
+    An Adler-32 checksum is obtained by calculating two 16-bit checksums A and B and concatenating their bits into a 32-bit integer. A is the sum of all bytes in th
+e stream plus one, and B is the sum of the individual values of A from each step.
+
+    :returns: Hexified string, padded to 8 values.
+    """
+
+    # adler starting value is _not_ 0
+    adler = 1
+
+    try:
+        openFile = open(file, 'rb')
+        for line in openFile:
+            adler = zlib.adler32(line, adler)
+    except:
+        raise Exception('FATAL - could not get checksum of file %s' % file)
+
+    # backflip on 32bit
+    if adler < 0:
+        adler = adler + 2 ** 32
+
+    return str('%08x' % adler)
+
+
+if __name__ == '__main__':
+
+    scope = 'MyScope'
+    path = '/pnfs/ndgf.org/data/atlas/disk/atlasdatadisk/piggy/MyScope/'
+    for file_in in os.listdir('.'):
+        statinfo = os.stat(file_in)
+        pfn = 'srm://srm.ndgf.org:8443/srm/managerv2?SFN=' + path.replace('/pnfs/ndgf.org/data','') + file_in
+        print ",".join([scope, file_in, pfn, str(statinfo.st_size), adler32(file_in)])
