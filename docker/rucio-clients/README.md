@@ -5,7 +5,12 @@ export X509_USER_CERT=~/.globus/usercert.pem
 export X509_USER_KEY=~/.globus/userkey.pem
 export RUCIO_AUTH_TYPE=x509_proxy
 ```
-Then
+
+Then configure Rucio.
+
+
+
+
 ```
 docker run \
 -v $X509_USER_CERT:$X509_USER_CERT \
@@ -14,11 +19,11 @@ docker run \
 -e X509_USER_KEY=$X509_USER_KEY \
 -e RUCIO_ACCOUNT=$RUCIO_ACCOUNT \
 -e RUCIO_AUTH_TYPE=$RUCIO_AUTH_TYPE \
--it -d --name rucio-clients-atlas rucio/rucio-clients-atlas
+-it -d --name rucio-clients rucio/rucio-clients
 ```
 and:
 ```
-docker exec -it rucio-clients-atlas /bin/bash
+docker exec -it rucio-clients /bin/bash
 ```
 
 then:
